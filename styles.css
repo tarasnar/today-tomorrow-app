@@ -11,10 +11,10 @@ body {
 }
 
 .note {
-    min-width: 250px;
-    min-height: 250px;
-    margin: 25px;
-    padding: 5px;
+    height: 400px;
+    width: 400px;
+    margin: 20px;
+    padding: 20px;
 }
 
 .note:nth-child(1) {
@@ -23,4 +23,8 @@ body {
 
 .note:nth-child(2) {
     background-color: powderblue;
+}
+
+ul {
+    list-style-type: none;
 }
