@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.note {
+    min-width: 250px;
+    min-height: 250px;
+    margin: 25px;
+    padding: 5px;
+}
+
+.note:nth-child(1) {
+    background-color: antiquewhite;
+}
+
+.note:nth-child(2) {
+    background-color: powderblue;
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Мої задачі</title>
+  <script defer src="script.js"></script>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Мої задачі">
+  <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+<div class="note">
+  <h2>Сьогодні</h2>
+  <ul id="todayList"></ul>
+  <input type="text" id="todayInput" placeholder="Нова задача...">
+  <button id="todayAddBtn">Додати</button>
+</div>
+
+<div class="note">
+  <h2>Завтра</h2>
+  <ul id="tomorrowList"></ul>
+  <input type="text" id="tomorrowInput" placeholder="Нова задача...">
+  <button id="tomorrowAddBtn">Додати</button>
+</div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+  }
+</script>
+</body>
+</html>
