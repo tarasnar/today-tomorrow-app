@@ -14,7 +14,7 @@ body {
 .note {
     height: 400px;
     width: 400px;
-    margin: 20px;
+    margin: 10px;
     padding: 10px;
 }
 
@@ -28,4 +28,21 @@ body {
 
 ul {
     list-style-type: none;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-bottom: 5px;
+}
+
+li span {
+    margin-left: 10px;
+    flex: 1;
+}
+
+li button:active {
+    background-color: indianred;
+    color: white;
 }
