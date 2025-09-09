@@ -116,7 +116,7 @@ function createTaskElement(task, day, index) {
 
 // ----- Background progress (знизу-вверх) -----
 function updateBackground(data) {
-    const allTasks = [...data.today, ...data.tomorrow];
+    const allTasks = [...data.today];
     const total = allTasks.length;
     const done = allTasks.filter((t) => t.done).length;
 
