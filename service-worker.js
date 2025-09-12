@@ -1,5 +1,5 @@
 // Змінюй версію при оновленнях
-const CACHE_NAME = "tasks-pwa-v4";
+const CACHE_NAME = "tasks-pwa-v5";
 
 const urlsToCache = [
     "./",
