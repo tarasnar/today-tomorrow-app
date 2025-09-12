@@ -9,11 +9,15 @@ const tomorrowAddBtn = document.getElementById("tomorrowAddBtn");
 // ----- Storage -----
 const STORAGE_KEY = "tasksData";
 
+let lastTodayState = { total: 0, done: 0 };
+let allDonePlayed = false;
+
 function getDefaultData() {
     return {
         today: [],
         tomorrow: [],
         lastDate: new Date().toDateString(),
+        allDoneNotified: false // прапорець — чи ми вже повідомили про 100% (запобігає повторному звуку)
     };
 }
 
@@ -25,21 +29,25 @@ function saveTasks(data) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// ----- Init / rollover -----
+// ----- Init / rollover (переносимо лише невиконані з сьогодні і додаємо завтра) -----
 function loadTasks() {
     const saved = getSaved();
     const currentDate = new Date().toDateString();
 
-    // Новий день → переносимо "Завтра" в "Сьогодні", але видаляємо виконані
     if (saved.lastDate !== currentDate) {
-        // залишаємо лише невиконані задачі у сьогодні
+        // 🔹 Залишаємо тільки невиконані задачі з учорашнього "сьогодні"
         saved.today = saved.today.filter(task => !task.done);
 
-        // додаємо всі задачі із завтра
-        saved.today = [...saved.today, ...saved.tomorrow];
+        // 🔹 Переносимо задачі з "завтра", обнуляючи статус виконання
+        const moved = saved.tomorrow.map(task => ({
+            text: task.text,
+            done: false
+        }));
+        saved.today = [...saved.today, ...moved];
 
-        // очищаємо завтра
+        // 🔹 Очищаємо "завтра" і скидаємо прапорець звуку
         saved.tomorrow = [];
+        saved.allDoneNotified = false;
 
         saved.lastDate = currentDate;
         saveTasks(saved);
@@ -55,6 +63,10 @@ function addTask(day, text) {
 
     const data = getSaved();
     data[day].push({ text: trimmed, done: false });
+
+    // Додавання нових задач має скинути прапорець — користувач може знову досягти 100%
+    data.allDoneNotified = false;
+
     saveTasks(data);
     renderTasks(data);
 }
@@ -88,7 +100,7 @@ function renderTasks(data) {
         tomorrowList.appendChild(createTaskElement(task, "tomorrow", index));
     });
 
-    updateBackground(data); // ← передаємо актуальні дані сюди
+    updateBackground(data); // передаємо актуальні дані сюди
 }
 
 function createTaskElement(task, day, index) {
@@ -101,7 +113,7 @@ function createTaskElement(task, day, index) {
 
     const span = document.createElement("span");
     span.textContent = task.text;
-    if (task.done) span.classList.add("done"); // стилізуй у CSS
+    if (task.done) span.classList.add("done");
 
     const delBtn = document.createElement("button");
     delBtn.textContent = "✖";
@@ -114,7 +126,7 @@ function createTaskElement(task, day, index) {
     return li;
 }
 
-// ----- Background progress (знизу-вверх) -----
+// ----- Background progress (тільки для блоку "Сьогодні") -----
 function updateBackground(data) {
     const allTasks = [...data.today];
     const total = allTasks.length;
@@ -122,24 +134,37 @@ function updateBackground(data) {
 
     if (total === 0) {
         document.body.style.background = "#ffffff";
+        allDonePlayed = false; // якщо нема задач — скидаємо стан
+        lastTodayState = { total: 0, done: 0 };
         return;
     }
 
     const percent = (done / total) * 100;
 
-    // Заповнення знизу-вверх одним кольором
     document.body.style.background = `linear-gradient(
     to top,
     #c1e1c1 ${percent}%,
     #ffffff ${percent}%
-  )`;
+  ) no-repeat`;
+    document.body.style.backgroundSize = "100% 100vh";
 
-    if (done === total) {
-        const sound = document.getElementById("successSound");
-        if (sound) {
-            sound.currentTime = 0; // почати з початку
-            sound.play().catch(err => console.log("Автовідтворення заборонене:", err));
+    // Якщо змінились кількість або виконання у today
+    const stateChanged =
+        total !== lastTodayState.total || done !== lastTodayState.done;
+
+    if (stateChanged) {
+        if (done === total && !allDonePlayed) {
+            const sound = document.getElementById("successSound");
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(err => console.log("Автовідтворення заборонене:", err));
+            }
+            allDonePlayed = true;
         }
+        if (done !== total) {
+            allDonePlayed = false;
+        }
+        lastTodayState = { total, done };
     }
 }
 
@@ -154,7 +179,6 @@ tomorrowAddBtn.onclick = () => {
     tomorrowInput.value = "";
 };
 
-// Додавання по Enter
 todayInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         addTask("today", todayInput.value);
